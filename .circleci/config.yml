@@ -17,7 +17,7 @@ commands:
             chmod +x ./hadolint
       - run:
           name: Lint Dockerfile
-          command: hadolint Dockerfile
+          command: ./hadolint Dockerfile
 
 jobs:
   lint-karsajobs-ui:
