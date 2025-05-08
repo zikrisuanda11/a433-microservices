@@ -1,0 +1,64 @@
+version: 2.1
+
+executors:
+  golang-executor:
+    docker:
+      - image: cimg/go:1.20
+    working_directory: ~/project
+
+  docker-executor:
+    docker:
+      - image: cimg/base:stable
+    working_directory: ~/project
+
+commands:
+  lint_dockerfile:
+    steps:
+      - checkout
+      - run:
+          name: Install hadolint
+          command: |
+            curl -L -o /usr/local/bin/hadolint https://github.com/hadolint/hadolint/releases/latest/download/hadolint-Linux-x86_64
+            chmod +x /usr/local/bin/hadolint
+      - run:
+          name: Lint Dockerfile
+          command: hadolint Dockerfile
+
+jobs:
+  lint-karsajobs:
+    executor: docker-executor
+    steps:
+      - lint_dockerfile
+
+  test-karsajobs:
+    executor: golang-executor
+    steps:
+      - checkout
+      - run:
+          name: Run Go Unit Tests
+          command: go test -v -short --count=1 $(go list ./...)
+
+  build-karsajobs:
+    executor: docker-executor
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: Build Docker Image
+          command: docker build -t ghcr.io/your-username/karsajobs:latest .
+      - run:
+          name: Push Docker Image
+          command: |
+            echo "$DOCKER_PASS" | docker login ghcr.io -u "$DOCKER_USER" --password-stdin
+            docker push ghcr.io/your-username/karsajobs:latest
+
+workflows:
+  version: 2
+  karsajobs-workflow:
+    jobs:
+      - lint-karsajobs
+      - test-karsajobs
+      - build-karsajobs:
+          requires:
+            - lint-karsajobs
+            - test-karsajobs
