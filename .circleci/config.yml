@@ -37,7 +37,7 @@ jobs:
           name: Push Docker Image
           command: |
             echo "$DOCKER_PASS" | docker login ghcr.io -u "$DOCKER_USER" --password-stdin
-            docker push ghcr.io/your-username/karsajobs-ui:latest
+            docker push ghcr.io/zikrisuanda11/karsajobs-ui:latest
 
 workflows:
   version: 2
