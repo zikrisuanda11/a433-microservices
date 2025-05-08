@@ -45,7 +45,7 @@ jobs:
       - setup_remote_docker
       - run:
           name: Build Docker Image
-          command: docker build -t ghcr.io/your-username/karsajobs:latest .
+          command: docker build -t ghcr.io/zikrisuanda11/karsajobs:latest .
       - run:
           name: Push Docker Image
           command: |
